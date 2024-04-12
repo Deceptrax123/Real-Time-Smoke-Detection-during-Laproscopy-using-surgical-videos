@@ -1,6 +1,7 @@
 import torch
 import torchvision
 import torchvision.transforms as T
+from preprocessing.preprocessing import cropToCentreAdaptive
 from PIL import Image
 import numpy as np
 from dotenv import load_dotenv
@@ -33,17 +34,21 @@ class VideoDataset(torch.utils.data.Dataset):
 
             img = Image.open(path)
 
+            # Adaptive cropping algorithm
+            img = cropToCentreAdaptive(
+                np.array(img), threshold=0.90, step_size=8)
+
             # perform general pre-processing
             transforms = T.Compose(
                 [T.ToTensor(), T.Normalize(mean=(0, 0, 0,), std=(1, 1, 1))])
 
-            #
+            # Transform to Tensor
             img_tensor = transforms(img)
 
             # Stack the Frames together
             frames.append(img_tensor)
 
-        X = torch.stack(frames, dim=0)
+        X = torch.stack(frames, dim=1)
 
         # Get the Label
         label = torch.tensor(int(sample_path[-1]), dtype=torch.float32)
