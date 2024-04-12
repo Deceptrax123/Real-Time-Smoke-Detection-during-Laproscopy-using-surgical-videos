@@ -254,7 +254,7 @@ if __name__ == '__main__':
     num_epochs = 100
 
     # Model
-    device = torch.device("cpu")
+    device = torch.device("cuda")
 
     backbone = Conv3DBase().to(device=device)
     backbone.load_state_dict(torch.load(
