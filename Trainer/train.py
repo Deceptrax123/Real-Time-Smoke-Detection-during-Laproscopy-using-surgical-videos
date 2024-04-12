@@ -16,6 +16,17 @@ import os
 from dotenv import load_dotenv
 
 
+def class_weights(y_sample):
+
+    num_positives = torch.sum(y_sample, dim=0)
+    num_negatives = y_sample.size(0)-num_positives
+
+    if torch.isinf(num_negatives/num_positives):
+        return torch.tensor(10)
+    else:
+        return num_negatives/num_positives
+
+
 def train_step(train_loader):
     epoch_loss = 0
     epoch_precision = 0
@@ -23,6 +34,7 @@ def train_step(train_loader):
     epoch_recall = 0
 
     for step, (x_sample, label) in enumerate(train_loader):
+        weights = class_weights(label).to(device=device)
         x_sample = x_sample.to(device=device)
         label = label.to(device=device)
 
@@ -32,7 +44,7 @@ def train_step(train_loader):
         model.zero_grad()
 
         # Compute Loss
-        loss_function = nn.BCEWithLogitsLoss()
+        loss_function = nn.BCEWithLogitsLoss(pos_weight=weights)
         loss = loss_function(logits, label)
 
         loss.backward()
@@ -84,13 +96,14 @@ def test_step(test_loader):
     epoch_recall = 0
 
     for step, (x_sample, label) in enumerate(test_loader):
+        weights = class_weights(label).to(device=device)
         x_sample = x_sample.to(device=device)
         label = label.to(device=device)
 
         # Forward Pass
         logits, predictions = model(x_sample)
 
-        loss_function = nn.BCEWithLogitsLoss()
+        loss_function = nn.BCEWithLogitsLoss(pos_weight=weights)
         loss = loss_function(logits, label)
 
         # Move tensors to CPU
