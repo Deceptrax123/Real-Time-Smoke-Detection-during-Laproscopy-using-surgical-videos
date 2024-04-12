@@ -53,6 +53,21 @@ def train_step(train_loader):
         # Memory Handling
         mps.empty_cache()
 
+        # step-wise inferencing
+        print("Step: ", step)
+        print("Step Train Loss: ", loss.item())
+        print("Step Train Accuracy: ", accuracy(predictions, label).item())
+        print("Step Train Precision: ", precision(predictions, label).item())
+        print("Step Train Recall", recall(predictions, label).item())
+
+        wandb.log({
+            "Step Train Loss": loss.item(),
+            "Step Train Accuracy": accuracy(predictions, label).item(),
+            "Step Train Precision": precision(predictions, label).item(),
+            "Step Train Recall": recall(predictions, label).item(),
+
+        })
+
         del x_sample
         del label
         del predictions
@@ -90,6 +105,21 @@ def test_step(test_loader):
         epoch_recall += recall(predictions, label).item()
         epoch_accuracy += accuracy(predictions, label).item()
 
+        # step-wise inferencing
+        print("Step: ", step)
+        print("Step Test Loss: ", loss.item())
+        print("Step Test Accuracy: ", accuracy(predictions, label).item())
+        print("Step Test Precision: ", precision(predictions, label).item())
+        print("Step Test Recall", recall(predictions, label).item())
+
+        wandb.log({
+            "Step Test Loss": loss.item(),
+            "Step Test Accuracy": accuracy(predictions, label).item(),
+            "Step Test Precision": precision(predictions, label).item(),
+            "Step Test Recall": recall(predictions, label).item(),
+
+        })
+
         # Memory Handling
         mps.empty_cache()
 
@@ -116,6 +146,7 @@ def training_loop():
         etrain_rec = 0
         etest_rec = 0
 
+        print("Values for Epoch: ", epoch)
         for video_id, video in enumerate(os.listdir(videos_path)):
             # Perspective->Each Video
 
@@ -129,6 +160,8 @@ def training_loop():
 
             train_loader = DataLoader(train_dataset, **params)
             test_loader = DataLoader(test_dataset, **params)
+
+            print("Video Number: ", video_id)
 
             model.train(True)
 
@@ -151,7 +184,7 @@ def training_loop():
                 etest_prec += test_prec
                 etest_rec += test_rec
 
-        print("Epoch: ", epoch)
+        print("Overall Results")
         print("Train Loss: ", etrain_loss/60)
         print("Train Precision: ", etrain_prec/60)
         print("Train Recall: ", etrain_rec/60)
