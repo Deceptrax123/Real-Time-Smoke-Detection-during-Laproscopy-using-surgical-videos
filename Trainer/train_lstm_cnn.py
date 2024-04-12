@@ -8,8 +8,8 @@ from time import time
 import torch.multiprocessing as mp
 import wandb
 from torch import cuda, cpu
-from Trainer.Models.CNN_3D.model import Conv3DBase
-from Trainer.Models.CNN_3D.init_weights import initialize_weights
+from Trainer.Models.LSTM_CNN.model import CNNLSTM
+from Trainer.Models.LSTM_CNN.init_weights import initialize_weights
 from sklearn.model_selection import train_test_split
 import gc
 import os
@@ -66,21 +66,6 @@ def train_step(train_loader):
         # Memory Handling
         cuda.empty_cache()
 
-        # step-wise inferencing
-        # print("Step: ", step)
-        # print("Step Train Loss: ", loss.item())
-        # print("Step Train Accuracy: ", accuracy(predictions, label).item())
-        # print("Step Train Precision: ", precision(predictions, label).item())
-        # print("Step Train Recall", recall(predictions, label).item())
-
-        # wandb.log({
-        #     "Step Train Loss": loss.item(),
-        #     "Step Train Accuracy": accuracy(predictions, label).item(),
-        #     "Step Train Precision": precision(predictions, label).item(),
-        #     "Step Train Recall": recall(predictions, label).item(),
-
-        # })
-
         del x_sample
         del label
         del predictions
@@ -118,21 +103,6 @@ def test_step(test_loader):
         epoch_precision += precision(predictions, label).item()
         epoch_recall += recall(predictions, label).item()
         epoch_accuracy += accuracy(predictions, label).item()
-
-        # step-wise inferencing
-        # print("Step: ", step)
-        # print("Step Test Loss: ", loss.item())
-        # print("Step Test Accuracy: ", accuracy(predictions, label).item())
-        # print("Step Test Precision: ", precision(predictions, label).item())
-        # print("Step Test Recall", recall(predictions, label).item())
-
-        # wandb.log({
-        #     "Step Test Loss": loss.item(),
-        #     "Step Test Accuracy": accuracy(predictions, label).item(),
-        #     "Step Test Precision": precision(predictions, label).item(),
-        #     "Step Test Recall": recall(predictions, label).item(),
-
-        # })
 
         # Memory Handling
         cuda.empty_cache()
@@ -210,20 +180,20 @@ def training_loop():
         print("Test Recall: ", etest_rec/60)
 
         # Log to weights and biases
-        wandb.log({
-            "Train Loss": etrain_loss/60,
-            "Test Loss": etest_loss/60,
-            "Train Accuracy": etrain_accuracy/60,
-            "Train Precision": etrain_prec/60,
-            "Train Recall": etrain_rec/60,
+        # wandb.log({
+        #     "Train Loss": etrain_loss/60,
+        #     "Test Loss": etest_loss/60,
+        #     "Train Accuracy": etrain_accuracy/60,
+        #     "Train Precision": etrain_prec/60,
+        #     "Train Recall": etrain_rec/60,
 
-            "Test Accuracy": etest_accuracy/60,
-            "Test Precision": etest_prec/60,
-            "Test Recall": etest_rec/60
-        })
+        #     "Test Accuracy": etest_accuracy/60,
+        #     "Test Precision": etest_prec/60,
+        #     "Test Recall": etest_rec/60
+        # })
 
         if (epoch+1) % 3 == 0:
-            path = "Trainer/weights/run_2/model{epoch}.pth".format(
+            path = "Trainer/weights/run_3/model{epoch}.pth".format(
                 epoch=epoch+1)
             torch.save(model.state_dict(), path)
 
@@ -244,20 +214,20 @@ if __name__ == '__main__':
         'num_workers': 0
     }
 
-    wandb.init(
-        project="Stryker Hackathon",
-        config={
-            "architecture": "Convolution Based Models",
-            "Dataset": "Stryker",
-        }
-    )
+    # wandb.init(
+    #     project="Stryker Hackathon",
+    #     config={
+    #         "architecture": "LSTM-CNN Based model",
+    #         "Dataset": "Stryker",
+    #     }
+    # )
 
     LR = 0.001
     num_epochs = 100
 
     # Model
     device = torch.device("cuda")
-    model = Conv3DBase().to(device=device)
+    model = CNNLSTM().to(device=device)
 
     # Initialize weights
 
