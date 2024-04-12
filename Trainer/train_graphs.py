@@ -10,6 +10,7 @@ import wandb
 from torch import cuda, cpu
 from Trainer.Models.CNN_3D.model import Conv3DBase
 from Trainer.Models.CNN_3D.init_weights import initialize_weights
+from Trainer.Models.Graphs.graph_module import GraphConstructor
 from sklearn.model_selection import train_test_split
 import gc
 import os
@@ -223,7 +224,7 @@ def training_loop():
         })
 
         if (epoch+1) % 3 == 0:
-            path = "Trainer/weights/run_2/model{epoch}.pth".format(
+            path = "Trainer/weights/run_3/model{epoch}.pth".format(
                 epoch=epoch+1)
             torch.save(model.state_dict(), path)
 
@@ -234,9 +235,6 @@ if __name__ == '__main__':
 
     # Video path
     videos_path = os.getenv("video_global_path")
-
-    # test the dataset class
-    dataset = VideoDataset(os.listdir(videos_path+"video05/"), "video05")
 
     params = {
         'batch_size': 8,
@@ -256,11 +254,18 @@ if __name__ == '__main__':
     num_epochs = 100
 
     # Model
-    device = torch.device("cuda")
-    model = Conv3DBase().to(device=device)
+    device = torch.device("cpu")
 
-    # Initialize weights
-    model.apply(initialize_weights)
+    backbone = Conv3DBase().to(device=device)
+    backbone.load_state_dict(torch.load(
+        "model10_weighted.pth", map_location=device), strict=False)
+
+    model = GraphConstructor(backbone).to(device=device)
+
+    # Freeze Backbone
+    for params in model.children():
+        params.requires_grad = False
+        break
 
     # Optimizer
     model_optimizer = torch.optim.Adam(
@@ -270,5 +275,3 @@ if __name__ == '__main__':
     precision = BinaryPrecision()
     recall = BinaryRecall()
     accuracy = BinaryAccuracy()
-
-    training_loop()

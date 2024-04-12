@@ -6,10 +6,10 @@ from torch.nn.functional import softmax
 
 
 class GraphConstructor(Module):
-    def __init__(self):
+    def __init__(self, conv3dbase):
         super(GraphConstructor, self).__init__()
 
-        self.extractor = Conv3DBase()  # Feature extractor based on 3D convolutio
+        self.extractor = conv3dbase  # Feature extractor based on 3D convolutio
 
         self.linear = Linear(in_features=128*10*8*8, out_features=32)
 
@@ -28,7 +28,7 @@ class GraphConstructor(Module):
         self.g_3 = GraphConvolution(f=8)
 
         # classifier
-        self.classifier = Linear(in_features=8*10)
+        self.classifier = Linear(in_features=8*10, out_features=1)
 
     def forward(self, x):
         # Extract Features
