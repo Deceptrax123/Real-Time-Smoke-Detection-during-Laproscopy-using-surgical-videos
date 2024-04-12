@@ -51,6 +51,9 @@ class VideoDataset(torch.utils.data.Dataset):
         X = torch.stack(frames, dim=1)
 
         # Get the Label
-        label = torch.tensor(int(sample_path[-1]), dtype=torch.float32)
+        if int(sample_path[-1]) == 1:
+            label = torch.ones(1)
+        else:
+            label = torch.zeros(1)
 
         return X, label

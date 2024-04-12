@@ -204,7 +204,7 @@ if __name__ == '__main__':
     num_epochs = 100
 
     # Model
-    device = torch.device("mps")
+    device = torch.device("cpu")
     model = Conv3DBase().to(device=device)
 
     # Optimizer
