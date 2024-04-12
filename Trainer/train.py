@@ -9,6 +9,7 @@ import torch.multiprocessing as mp
 import wandb
 from torch import cuda, cpu
 from Trainer.Models.CNN_3D.model import Conv3DBase
+from Trainer.Models.CNN_3D.init_weights import initialize_weights
 from sklearn.model_selection import train_test_split
 import gc
 import os
@@ -208,6 +209,11 @@ def training_loop():
             "Test Recall": etest_rec
         })
 
+        if (epoch+1) % 10 == 0:
+            path = "Trainer/weights/run_1/model{epoch}.pth".format(
+                epoch=epoch+1)
+            torch.save(model.state_dict(), path)
+
 
 if __name__ == '__main__':
     mp.set_sharing_strategy('file_system')
@@ -240,9 +246,14 @@ if __name__ == '__main__':
     device = torch.device("cuda")
     model = Conv3DBase().to(device=device)
 
+    # Initialize weights
+
     # Optimizer
     model_optimizer = torch.optim.Adam(
         model.parameters(), lr=LR, betas=(0.9, 0.999))
+
+    # Initialize weights
+    model.apply(initialize_weights)
 
     # metrics
     precision = BinaryPrecision()
