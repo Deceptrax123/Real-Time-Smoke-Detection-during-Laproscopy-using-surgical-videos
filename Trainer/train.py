@@ -7,7 +7,7 @@ from torch import nn
 from time import time
 import torch.multiprocessing as mp
 import wandb
-from torch import mps, cpu
+from torch import cuda, cpu
 from Trainer.Models.CNN_3D.model import Conv3DBase
 from sklearn.model_selection import train_test_split
 import gc
@@ -51,22 +51,22 @@ def train_step(train_loader):
         epoch_accuracy += accuracy(predictions, label).item()
 
         # Memory Handling
-        mps.empty_cache()
+        cuda.empty_cache()
 
         # step-wise inferencing
-        print("Step: ", step)
-        print("Step Train Loss: ", loss.item())
-        print("Step Train Accuracy: ", accuracy(predictions, label).item())
-        print("Step Train Precision: ", precision(predictions, label).item())
-        print("Step Train Recall", recall(predictions, label).item())
+        # print("Step: ", step)
+        # print("Step Train Loss: ", loss.item())
+        # print("Step Train Accuracy: ", accuracy(predictions, label).item())
+        # print("Step Train Precision: ", precision(predictions, label).item())
+        # print("Step Train Recall", recall(predictions, label).item())
 
-        wandb.log({
-            "Step Train Loss": loss.item(),
-            "Step Train Accuracy": accuracy(predictions, label).item(),
-            "Step Train Precision": precision(predictions, label).item(),
-            "Step Train Recall": recall(predictions, label).item(),
+        # wandb.log({
+        #     "Step Train Loss": loss.item(),
+        #     "Step Train Accuracy": accuracy(predictions, label).item(),
+        #     "Step Train Precision": precision(predictions, label).item(),
+        #     "Step Train Recall": recall(predictions, label).item(),
 
-        })
+        # })
 
         del x_sample
         del label
@@ -106,22 +106,22 @@ def test_step(test_loader):
         epoch_accuracy += accuracy(predictions, label).item()
 
         # step-wise inferencing
-        print("Step: ", step)
-        print("Step Test Loss: ", loss.item())
-        print("Step Test Accuracy: ", accuracy(predictions, label).item())
-        print("Step Test Precision: ", precision(predictions, label).item())
-        print("Step Test Recall", recall(predictions, label).item())
+        # print("Step: ", step)
+        # print("Step Test Loss: ", loss.item())
+        # print("Step Test Accuracy: ", accuracy(predictions, label).item())
+        # print("Step Test Precision: ", precision(predictions, label).item())
+        # print("Step Test Recall", recall(predictions, label).item())
 
-        wandb.log({
-            "Step Test Loss": loss.item(),
-            "Step Test Accuracy": accuracy(predictions, label).item(),
-            "Step Test Precision": precision(predictions, label).item(),
-            "Step Test Recall": recall(predictions, label).item(),
+        # wandb.log({
+        #     "Step Test Loss": loss.item(),
+        #     "Step Test Accuracy": accuracy(predictions, label).item(),
+        #     "Step Test Precision": precision(predictions, label).item(),
+        #     "Step Test Recall": recall(predictions, label).item(),
 
-        })
+        # })
 
         # Memory Handling
-        mps.empty_cache()
+        cuda.empty_cache()
 
         del x_sample
         del label
@@ -237,7 +237,7 @@ if __name__ == '__main__':
     num_epochs = 100
 
     # Model
-    device = torch.device("cpu")
+    device = torch.device("cuda")
     model = Conv3DBase().to(device=device)
 
     # Optimizer
