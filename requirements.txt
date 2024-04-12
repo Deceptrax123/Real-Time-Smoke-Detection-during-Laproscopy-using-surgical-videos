@@ -9,3 +9,5 @@ opencv-python
 torch_geometric 
 torchsummary
 torchmetrics
+wandb
+python-dotenv 
