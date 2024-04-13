@@ -245,7 +245,7 @@ if __name__ == '__main__':
     wandb.init(
         project="Stryker Hackathon",
         config={
-            "architecture": "Convolution Based Models",
+            "architecture": "Graph Convolution Model",
             "Dataset": "Stryker",
         }
     )
@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
     backbone = Conv3DBase().to(device=device)
     backbone.load_state_dict(torch.load(
-        "model12.pth", map_location=device), strict=False)
+        "Trainer/weights/run_2/model21.pth", map_location=device), strict=False)
 
     model = GraphConstructor(backbone).to(device=device)
 

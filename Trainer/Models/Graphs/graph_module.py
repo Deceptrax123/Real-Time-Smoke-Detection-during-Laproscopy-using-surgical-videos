@@ -52,7 +52,7 @@ class GraphConstructor(Module):
         A1 = softmax(torch.bmm(torch.transpose(x1, 1, 2), x2))
 
         # Adjacency Matrix on temporal features
-        A2 = torch.zeros((x.size(0), 10, 10))
+        A2 = torch.zeros((x.size(0), 10, 10)).to(device="cuda")
         for k in range(x.size(0)):
             for i in range(10):  # 10 frames
                 for j in range(10):  # 10 frames
