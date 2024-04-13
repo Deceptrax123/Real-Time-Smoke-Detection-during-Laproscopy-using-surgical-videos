@@ -11,3 +11,4 @@ torchsummary
 torchmetrics
 wandb
 python-dotenv 
+torchinfo

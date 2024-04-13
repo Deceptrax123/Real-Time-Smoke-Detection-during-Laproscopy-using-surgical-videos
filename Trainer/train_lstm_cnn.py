@@ -230,13 +230,11 @@ if __name__ == '__main__':
     model = CNNLSTM().to(device=device)
 
     # Initialize weights
+    model.apply(initialize_weights)
 
     # Optimizer
     model_optimizer = torch.optim.Adam(
         model.parameters(), lr=LR, betas=(0.9, 0.999))
-
-    # Initialize weights
-    model.apply(initialize_weights)
 
     # metrics
     precision = BinaryPrecision()

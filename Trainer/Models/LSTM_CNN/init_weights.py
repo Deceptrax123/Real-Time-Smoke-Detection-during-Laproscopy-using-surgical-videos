@@ -1,9 +1,10 @@
 import torch
 from torch import nn
 
+
 def initialize_weights(model):
     for module in model.modules():
-        if isinstance(module, (nn.LSTM, nn.Linear)):
+        if isinstance(module, (nn.LSTM, nn.Conv2d, nn.Linear)):
             if module.bias.data is not None:
                 module.bias.data.zero_()
             else:
