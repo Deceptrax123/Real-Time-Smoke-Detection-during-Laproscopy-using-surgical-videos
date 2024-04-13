@@ -2,15 +2,20 @@ import torch
 from Trainer.video_dataset import VideoDatasetTest
 from torch.utils.data import DataLoader
 from Trainer.Models.CNN_3D.model import Conv3DBase
+from Trainer.Models.Graphs.graph_module import GraphConstructor
+from Trainer.Models.Graphs.backbone import Conv3DBase as Conv3DBase_Graph
 import os
 import argparse
 import pandas as pd
-
+from time import perf_counter
+from dotenv import load_dotenv
+import time
 
 
 
 
 if __name__ == '__main__':
+    load_dotenv()
     parser = argparse.ArgumentParser(
         description='sum the integers at the command line')
     parser.add_argument('--mode', type=str, choices=["all","per_video","per_sample"], default="per_sample", required=True,
@@ -19,10 +24,19 @@ if __name__ == '__main__':
         help='Path to folder')
     parser.add_argument('--save_path', type=str,required=False,default="out.csv",
         help='Path to folder')
+    parser.add_argument('--model', type=str, default="3dconv",choices=["3dconv", "graph"],
+        help='Model being used')
     args = parser.parse_args()
-    model = Conv3DBase().to(device="cuda")
-    model.load_state_dict(torch.load("Trainer/weights/run_2/model21.pth"))
-    model.eval()
+    if(args.model == "3dconv"):
+        model = Conv3DBase().to(device="cuda")
+        model.load_state_dict(torch.load(os.getenv("best_model_path")))
+        model.eval()
+    elif(args.model=="graph"):
+        model_base = Conv3DBase_Graph()
+        model = GraphConstructor(model_base).to(device="cuda")
+        model.load_state_dict(torch.load(os.getenv("best_model_path_graph")))
+        model.eval()
+    
     if(args.mode == "all"):
         pred = {}
         if(args.path is not None):
@@ -71,14 +85,25 @@ if __name__ == '__main__':
                 "num_workers":0
             })
             pred = {}
+            total = 0
+            n = 0
+            t_t1 = time.time()
             for path, x in loader:
+                t1 = perf_counter()
                 x : torch.Tensor = x.to(device="cuda")
                 _, predictions = model(x)
+                t2 = perf_counter()
+                total += t2 - t1
                 # predictions = predictions > 0.5
+                n += len(path)
                 for i in range(len(path)):
                     pred[path[i]] = float(predictions[i])
             for k in pred.keys():
                 print("_".join(k.split("/")[-2:]),pred[k], pred[k] > 0.5)
+            print()
+            print(f"Completed inference on {n} samples in {total}ms")
+            print(f"This equates to {total/(n*10)} ms/frame")
+            print(f"Total time taken was {time.time() - t_t1}s for {n*10} frames")
         else:
             raise argparse.ArgumentError("Missing folder path in mode: all. Use --path to pass this.")
     else:
