@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
     backbone = Conv3DBase().to(device=device)
     backbone.load_state_dict(torch.load(
-        "Trainer/weights/run_2/model12.pth", map_location=device), strict=True)
+        "Trainer/weights/run_2/model12.pth", map_location=device), strict=False)
 
     model = GraphConstructor(backbone).to(device=device)
 
