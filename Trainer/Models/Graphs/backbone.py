@@ -80,6 +80,6 @@ class Conv3DBase(Module):
 
         x = self.conv7(x)
 
-        x = torch.view(x.size(0), x.size(1)*x.size(2)*x.size(3)*x.size(4))
+        x = x.view(x.size(0), x.size(1)*x.size(2)*x.size(3)*x.size(4))
 
         return x

@@ -8,7 +8,7 @@ from time import time
 import torch.multiprocessing as mp
 import wandb
 from torch import cuda, cpu
-from Trainer.Models.CNN_3D.model import Conv3DBase
+from Trainer.Models.Graphs.backbone import Conv3DBase
 from Trainer.Models.CNN_3D.init_weights import initialize_weights
 from Trainer.Models.Graphs.graph_module import GraphConstructor
 from sklearn.model_selection import train_test_split
@@ -173,6 +173,12 @@ def training_loop():
             train_dataset = VideoDataset(train, video)
             test_dataset = VideoDataset(test, video)
 
+            params = {
+                'batch_size': 8,
+                'shuffle': True,
+                'num_workers': 0
+            }
+
             train_loader = DataLoader(train_dataset, **params)
             test_loader = DataLoader(test_dataset, **params)
 
@@ -236,12 +242,6 @@ if __name__ == '__main__':
     # Video path
     videos_path = os.getenv("video_global_path")
 
-    params = {
-        'batch_size': 8,
-        'shuffle': True,
-        'num_workers': 0
-    }
-
     wandb.init(
         project="Stryker Hackathon",
         config={
@@ -258,11 +258,10 @@ if __name__ == '__main__':
 
     backbone = Conv3DBase().to(device=device)
     backbone.load_state_dict(torch.load(
-        "model10_weighted.pth", map_location=device), strict=False)
+        "model12.pth", map_location=device), strict=False)
 
     model = GraphConstructor(backbone).to(device=device)
 
-    # Freeze Backbone
     for params in model.children():
         params.requires_grad = False
         break
@@ -275,3 +274,5 @@ if __name__ == '__main__':
     precision = BinaryPrecision()
     recall = BinaryRecall()
     accuracy = BinaryAccuracy()
+
+    training_loop()
