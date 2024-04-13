@@ -180,20 +180,20 @@ def training_loop():
         print("Test Recall: ", etest_rec/60)
 
         # Log to weights and biases
-        # wandb.log({
-        #     "Train Loss": etrain_loss/60,
-        #     "Test Loss": etest_loss/60,
-        #     "Train Accuracy": etrain_accuracy/60,
-        #     "Train Precision": etrain_prec/60,
-        #     "Train Recall": etrain_rec/60,
+        wandb.log({
+            "Train Loss": etrain_loss/60,
+            "Test Loss": etest_loss/60,
+            "Train Accuracy": etrain_accuracy/60,
+            "Train Precision": etrain_prec/60,
+            "Train Recall": etrain_rec/60,
 
-        #     "Test Accuracy": etest_accuracy/60,
-        #     "Test Precision": etest_prec/60,
-        #     "Test Recall": etest_rec/60
-        # })
+            "Test Accuracy": etest_accuracy/60,
+            "Test Precision": etest_prec/60,
+            "Test Recall": etest_rec/60
+        })
 
         if (epoch+1) % 3 == 0:
-            path = "Trainer/weights/run_3/model{epoch}.pth".format(
+            path = "Trainer/weights/run_4/model{epoch}.pth".format(
                 epoch=epoch+1)
             torch.save(model.state_dict(), path)
 
@@ -209,18 +209,18 @@ if __name__ == '__main__':
     dataset = VideoDataset(os.listdir(videos_path+"video05/"), "video05")
 
     params = {
-        'batch_size': 8,
+        'batch_size': 4,
         'shuffle': True,
         'num_workers': 0
     }
 
-    # wandb.init(
-    #     project="Stryker Hackathon",
-    #     config={
-    #         "architecture": "LSTM-CNN Based model",
-    #         "Dataset": "Stryker",
-    #     }
-    # )
+    wandb.init(
+        project="Stryker Hackathon",
+        config={
+            "architecture": "LSTM-CNN Based model",
+            "Dataset": "Stryker",
+        }
+    )
 
     LR = 0.001
     num_epochs = 100
