@@ -57,3 +57,42 @@ class VideoDataset(torch.utils.data.Dataset):
             label = torch.zeros(1)
 
         return X, label
+
+class VideoDatasetTest(torch.utils.data.Dataset):
+    def __init__(self, paths):
+        self.paths = paths
+    def __len__(self):
+        return len(self.paths)
+
+    def __getitem__(self, index):
+        # Gets a sample
+
+        sample_path = self.paths[index]
+
+        # Get The Frames
+        frame_path_list = os.listdir(sample_path)
+
+        # Read each of the 10 frames and stack the frames
+        frames = list()
+        for frame in frame_path_list:
+            path = os.path.join(sample_path, frame)
+
+            img = Image.open(path)
+
+            # Adaptive cropping algorithm
+            img = cropToCentreAdaptive(
+                np.array(img), threshold=0.90, step_size=8)
+
+            # perform general pre-processing
+            transforms = T.Compose(
+                [T.ToTensor(), T.Normalize(mean=(0, 0, 0,), std=(1, 1, 1))])
+
+            # Transform to Tensor
+            img_tensor = transforms(img)
+
+            # Stack the Frames together
+            frames.append(img_tensor)
+
+        X = torch.stack(frames, dim=1)
+
+        return self.paths[index], X
