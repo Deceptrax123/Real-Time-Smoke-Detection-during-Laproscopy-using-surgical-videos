@@ -230,7 +230,7 @@ def training_loop():
         })
 
         if (epoch+1) % 3 == 0:
-            path = "Trainer/weights/run_3/model{epoch}.pth".format(
+            path = "Trainer/weights/run_4/model{epoch}.pth".format(
                 epoch=epoch+1)
             torch.save(model.state_dict(), path)
 
@@ -258,13 +258,9 @@ if __name__ == '__main__':
 
     backbone = Conv3DBase().to(device=device)
     backbone.load_state_dict(torch.load(
-        "Trainer/weights/run_2/model21.pth", map_location=device), strict=False)
+        "Trainer/weights/run_2/model12.pth", map_location=device), strict=True)
 
     model = GraphConstructor(backbone).to(device=device)
-
-    for params in model.children():
-        params.requires_grad = False
-        break
 
     # Optimizer
     model_optimizer = torch.optim.Adam(
