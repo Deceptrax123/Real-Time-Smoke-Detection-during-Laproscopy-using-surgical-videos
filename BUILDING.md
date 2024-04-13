@@ -20,3 +20,13 @@ best_model_path=Trainer/weights/run_2/model21.pth
 The .env file lives in the root directory of the repository.
 
 Once set up, in order to start training, create the `weights\run_1` or corresponding save path corresponding to the model save path on line 225 of `train.py` or line 233 of `train_graphs.py`.
+
+
+## Example commands for evaluating the models to generate CSVs for all samples
+```bash
+python trainer/test.py --mode all --save-path out.csv --path path/to/folder  --model 3dconv 
+```
+
+```bash
+python trainer/test.py --mode all --save-path out.csv --path path/to/folder  --model graph
+```
